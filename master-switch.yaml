@@ -1,0 +1,58 @@
+substitutions:
+  device_name: master-switch
+  friendly_name: Master Switch
+
+## Boilerplate
+
+esphome:
+  name: ${device_name}
+
+esp32:
+  board: m5stack-atom
+  framework:
+    type: arduino
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: Fallback ${device_name}
+
+captive_portal:
+
+logger:
+
+api:
+
+ota:
+
+## Device-specific
+
+light:
+  - platform: fastled_clockless
+    chipset: WS2812B
+    pin: 27
+    num_leds: 25
+    rgb_order: GRB
+    id: ledmatrix
+    name: ${friendly_name} Light
+    on_turn_on:
+    - logger.log: "Light Turned On!"
+    on_turn_off:
+    - logger.log: "Light Turned Off!"
+    effects:
+      - random:
+          name: "My Slow Random Effect"
+          transition_length: 30s
+          update_interval: 30s
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: 39
+      inverted: true
+    name: ${friendly_name} Button
+    on_press:
+      then:
+        - light.toggle: ledmatrix
